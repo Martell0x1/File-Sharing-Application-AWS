@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Your File</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap');
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Quicksand', sans-serif;
+      background: #a2d2ff;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      color: #1f4e79;
+    }
+
+    .clouds-bg {
+      position: absolute;
+      top: -100px;
+      left: 0;
+      width: 100%;
+      z-index: 0;
+      opacity: 0.8;
+    }
+
+    .glitter-rain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .glitter {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background-color: gold;
+      clip-path: polygon(
+        50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%,
+        50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%
+      );
+      animation: fall linear infinite, twinkle 2s infinite ease-in-out;
+      opacity: 0.9;
+      box-shadow: 0 0 10px gold, 0 0 15px gold;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-20px); opacity: 0; }
+      100% { transform: translateY(100vh); opacity: 1; }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+
+    .container {
+      z-index: 3;
+      background: white;
+      padding: 35px;
+      border-radius: 20px;
+      text-align: center;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 25px;
+      color: #0077cc;
+    }
+
+    input[type="file"] {
+      border: 2px dashed #a2d2ff;
+      border-radius: 10px;
+      padding: 10px;
+      background-color: #e0f7ff;
+      color: #0077cc;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: linear-gradient(to right, #5dade2, #3498db);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    #message {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    #fileList {
+      margin-top: 15px;
+      padding-left: 0;
+      list-style: none;
+      text-align: left;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .motivation {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    a {
+      color: #0077cc;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <img src="clouds.png" alt="clouds" class="clouds-bg" />
+  <div class="glitter-rain" id="glitterRain"></div>
+  <div class="container">
+    <h1>Upload Your File</h1>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" required multiple/>
+      <br />
+      <button type="submit">Upload</button>
+    </form>
+
+    <button id="viewFilesBtn" type="button">View Uploaded Files</button>
+    <ul id="fileList"></ul>
+
+    <div id="message"></div>
+    <div class="motivation">✨ Your files are ready to travel through the stars!</div>
+  </div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const msg = document.getElementById("message");
+    const viewBtn = document.getElementById("viewFilesBtn");
+    const fileList = document.getElementById("fileList");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const files = fileInput.files;
+      if (!files.length) return;
+
+      const formData = new FormData();
+      for(const file of files){
+        formData.append("files", file);
+      }
+
+      msg.textContent = "Uploading...";
+
+      const stars = [];
+      for (let i = 0; i < 10; i++) {
+        const star = document.createElement("div");
+        star.classList.add("glitter");
+        star.style.left = Math.random() * 100 + "%";
+        star.style.top = "50%";
+        star.style.animation = "flyUp 1s ease-out forwards, twinkle 2s infinite ease-in-out";
+        document.body.appendChild(star);
+        stars.push(star);
+      }
+
+      try {
+        const res = await fetch("/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+          msg.innerHTML = `${error.error || 'Upload failed'}. Redirecting...`;
+          setTimeout(() => {
+            window.location.href = "/InvalidRequest.html"; 
+          }, 1500);
+          return;
+        }
+
+        const text = await res.text();
+        msg.innerHTML = `${text}<br><a href='list.html'>Go to File List</a>`;
+      } catch (err) {
+        msg.textContent = "Upload failed. Please try again.";
+      }
+
+      setTimeout(() => {
+        stars.forEach((star) => star.remove());
+      }, 1000);
+    });
+
+    viewBtn.addEventListener("click", async () => {
+      window.location.href = "/list.html";
+    });
+    
+    const glitterContainer = document.getElementById("glitterRain");
+    const glitterCount = 80;
+    for (let i = 0; i < glitterCount; i++) {
+      const glitter = document.createElement("div");
+      glitter.classList.add("glitter");
+      glitter.style.left = Math.random() * 100 + "vw";
+      glitter.style.animationDuration = 2 + Math.random() * 3 + "s";
+      glitter.style.opacity = Math.random();
+      glitterContainer.appendChild(glitter);
+    }
+
+    const style = document.createElement("style");
+    style.innerHTML = `
+      @keyframes flyUp {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(-200px); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

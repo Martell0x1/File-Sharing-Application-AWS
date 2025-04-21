@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 Not Found</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap');
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Quicksand', sans-serif;
+      background: #a2d2ff;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      color: #1f4e79;
+    }
+
+    .clouds-bg {
+      position: absolute;
+      top: -100px;
+      left: 0;
+      width: 100%;
+      z-index: 0;
+      opacity: 0.8;
+    }
+
+    .glitter-rain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .glitter {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background-color: gold;
+      clip-path: polygon(
+        50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%,
+        50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%
+      );
+      animation: fall linear infinite, twinkle 2s infinite ease-in-out;
+      opacity: 0.9;
+      box-shadow: 0 0 8px gold, 0 0 12px gold;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-20px); opacity: 0; }
+      100% { transform: translateY(100vh); opacity: 1; }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+
+    .container {
+      z-index: 3;
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+      color: #0077cc;
+    }
+
+    p {
+      font-size: 16px;
+      margin: 10px 0 25px;
+      color: #444;
+    }
+
+    a {
+      display: inline-block;
+      background: linear-gradient(to right, #5dade2, #3498db);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+
+    a:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <img src="clouds.png" alt="clouds" class="clouds-bg" />
+  <div class="glitter-rain" id="glitterRain"></div>
+
+  <div class="container">
+    <h1>404</h1>
+    <p>Page Not Found</p>
+    <a href="/">Back to Home</a>
+  </div>
+
+  <script>
+    const glitterContainer = document.getElementById("glitterRain");
+    const glitterCount = 80;
+
+    for (let i = 0; i < glitterCount; i++) {
+      const glitter = document.createElement("div");
+      glitter.classList.add("glitter");
+      glitter.style.left = Math.random() * 100 + "vw";
+      glitter.style.animationDuration = (2 + Math.random() * 3) + "s";
+      glitter.style.opacity = Math.random();
+      glitterContainer.appendChild(glitter);
+    }
+  </script>
+</body>
+</html>
